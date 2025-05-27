@@ -171,11 +171,7 @@ fn get_types(
             // || param.name.starts_with("type")
             let param_name = &param.name;
             let name = Ident::new(
-                &String::from(
-                    param_name
-                        .to_case(Case::Snake)
-                        .replace_if("type", "Type", || param.name.starts_with("type")),
-                ),
+                &escape_keyword(&param_name.to_case(Case::Snake)),
                 Span::call_site(),
             );
 
@@ -427,7 +423,7 @@ fn get_types(
                                 None => {
                                     let property_name = &property.name;
                                     let p_name = Ident::new(
-                                        &property_name.to_case(Case::Snake).replace("type", "Type"),
+                                        &escape_keyword(&property_name.to_case(Case::Snake)),
                                         Span::call_site(),
                                     );
 
@@ -797,10 +793,7 @@ pub fn get_parameters(
         for parameter in parameters {
             let parameter_name = &parameter.name;
             let p_name = Ident::new(
-                &parameter_name
-                    .to_case(Case::Snake)
-                    .replace("type", "Type")
-                    .replace("override", "Override"),
+                &escape_keyword(&parameter_name.to_case(Case::Snake)),
                 Span::call_site(),
             );
 
@@ -951,7 +944,7 @@ pub fn get_parameters(
                 let parameter_name = &parameter.name;
 
                 let ret_type = Ident::new(
-                    &parameter_name.to_case(Case::Snake).replace("type", "Type"),
+                    &escape_keyword(&parameter_name.to_case(Case::Snake)),
                     Span::call_site(),
                 );
 
@@ -1042,10 +1035,7 @@ pub fn get_events(
         for parameter in parameters {
             let parameter_name = &parameter.name;
             let p_name = Ident::new(
-                &parameter_name
-                    .to_case(Case::Snake)
-                    .replace("type", "Type")
-                    .replace("override", "Override"),
+                &escape_keyword(&parameter_name.to_case(Case::Snake)),
                 Span::call_site(),
             );
 
@@ -1194,7 +1184,7 @@ pub fn get_events(
                 let parameter_name = &parameter.name;
 
                 let ret_type = Ident::new(
-                    &parameter_name.to_case(Case::Snake).replace("type", "Type"),
+                    &escape_keyword(&parameter_name.to_case(Case::Snake)),
                     Span::call_site(),
                 );
 
@@ -1481,4 +1471,14 @@ pub fn compile_cdp_json(file_name: &str, commit: &str) -> (Vec<TokenStream>, Vec
     }
 
     (mods, event_parts)
+}
+
+fn escape_keyword(name: &str) -> String {
+    if name == "type" {
+        "type_".to_string()
+    } else if name == "override" {
+        "override_".to_string()
+    } else {
+        name.to_string()
+    }
 }
